@@ -57,6 +57,10 @@ try {
  await b.navigate('/product/morning');await b.click('.add-button');await b.click('.added-link');await b.click('.order-summary .button');
  await b.click('.confirm-order');await b.screenshot('mobile-checkout');check('Мобильные ошибки доступны',await b.evaluate('document.querySelectorAll(".form-field.invalid").length===5'));
  await b.navigate('/missing');check('Понятная страница 404', (await text()).includes('Страница не найдена'));
+ await b.navigate('/product/morning');check('Прямой адрес товара открывается',await b.evaluate('!!document.querySelector(".product-price")'));
+ await b.send('Page.reload');await wait(650);check('Перезагрузка адреса товара открывает ту же страницу',await b.evaluate('!!document.querySelector(".product-price")&&document.title.includes("Утро")'));
+ await b.click('.breadcrumbs a');await b.evaluate('history.back()');await wait(300);check('Назад возвращает страницу товара',await b.evaluate('!!document.querySelector(".product-price")'));
+ const beforeSkip=await b.evaluate('location.href');await b.click('.skip-link');check('Ссылка пропуска к содержимому сохраняет маршрут',await b.evaluate('location.href')===beforeSkip);check('Ссылка пропуска переводит фокус в контент',await b.evaluate('document.activeElement.id==="main"'));
  check('Нет исключений JavaScript',b.errors.length===0);
  console.log(`\n${checks.length} browser checks passed with Obscura.`);
 }finally{b.close();}
